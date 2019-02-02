@@ -27,4 +27,16 @@ jobs:
               docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
               docker push worrathep/example-nodejs-express:latest
               docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
+      - run:
+          name: Deploy to Rancher
+          command: |
+               docker run --rm -it \
+                  -e CATTLE_ACCESS_KEY="$9FFD32EDECBA68C15935" \
+                  -e CATTLE_SECRET_KEY="$tGNnqvtajVcmoJtXYZrMjhjhD25i8W6yfTHg5qDy" \
+                  -e CATTLE_URL="$http://139.5.147.72:8080" \
+                  etlweather/gaucho upgrade $1s13 \
+                  --imageUuild 'docker:worrathep/example-nodejs-express' \
+                  --batch_size 3 --start_first \
+                  --auto_complete --timeout 600 \
+                  /
       - run: echo Done
