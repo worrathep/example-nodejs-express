@@ -23,7 +23,7 @@ jobs:
           command: |
               cp Dockerfile.production Dockerfile
               docker build -t worrathep/example-nodejs-express:latest .
-              docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1}
-              docker push worrathep/example-nodejs-express:latest .
+              docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
+              docker push worrathep/example-nodejs-express:latest
               docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
       - run: echo Done
