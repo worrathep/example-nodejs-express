@@ -34,7 +34,7 @@ jobs:
                   -e CATTLE_ACCESS_KEY="$9FFD32EDECBA68C15935" \
                   -e CATTLE_SECRET_KEY="$tGNnqvtajVcmoJtXYZrMjhjhD25i8W6yfTHg5qDy" \
                   -e CATTLE_URL="$http://139.5.147.72:8080" \
-                  etlweather/gaucho upgrade $1s13 \
+                  etlweather/gaucho upgrade $service_id \
                   --imageUuild 'docker:worrathep/example-nodejs-express:latest' \
                   --batch_size 3 --start_first \
                   --auto_complete --timeout 600 \
