@@ -10,7 +10,7 @@ test('adds 3 + 5 to equal 8', () => {
 
 // Fix here
 test('adds 0 + 0 to equal -1', () => {
-  expect(cal.plus(0, 0)).toBe(0);
+  expect(cal.plus(0, 0)).toBe(-1);
 });
 
 test('1 - 1 to equal 0', () => {
