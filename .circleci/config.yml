@@ -9,14 +9,12 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
-            # fallback 
             - v1-dependencies-
       - run: npm install
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm test
       - setup_remote_docker
       - run: docker login -u $docker_username -p $docker_password
       - run: 
@@ -27,6 +25,7 @@ jobs:
               docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
               docker push worrathep/example-nodejs-express:latest
               docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
+      - run: echo Done
   test:
     docker:
       - image: circleci/node:8.11.1-stretch
@@ -43,6 +42,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: npm test
+      - run: echo Done
   deploy:
     docker:
        - image: circleci/node:8.11.1-stretch
