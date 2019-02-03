@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build: 
+  build:
     docker:
       - image: circleci/node:8.11.1-stretch
     working_directory: ~/repo
@@ -9,8 +9,14 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
+            # fallback 
             - v1-dependencies-
       - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm test
       - setup_remote_docker
       - run: docker login -u $docker_username -p $docker_password
       - run: 
@@ -21,33 +27,24 @@ jobs:
               docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
               docker push worrathep/example-nodejs-express:latest
               docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
-  test: 
-    docker:
-      - image: circleci/node:8.11.1-stretch
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-      - run: npm install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm test
+      - run:
+          name: Deploy to Rancher
+          command: |
+               docker run --rm -it \
+                  -e CATTLE_ACCESS_KEY="$CATTLE_ACCESS_KEY" \
+                  -e CATTLE_SECRET_KEY="$CATTLE_SECRET_KEY" \
+                  -e CATTLE_URL="$rancher_url" \
+                  etlweather/gaucho upgrade $service_id \
+                  --imageUuid 'docker:worrathep/example-nodejs-express:latest' \
+                  --batch_size 3 --start_first \
+                  --auto_complete --timeout 600 
+      - run: echo Done
 workflows:
   version: 2
-  build-test-and-deploy:
-    jobs:
-      - build
-      - test1:
-          requires:
-            - build  
-      - test2:
-          requires:
-            - test1 
-      - deploy:
-          requires:
-            - test2
+  test_deplpy_w_workflow:
+      jobs:
+        - build
+        - deploy:
+            # type: approval
+            requires:
+              - build
