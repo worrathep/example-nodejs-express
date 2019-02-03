@@ -39,3 +39,17 @@ jobs:
                   --batch_size 3 --start_first \
                   --auto_complete --timeout 600 
       - run: echo Done
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build
+      - test1:
+          requires:
+            - build  
+      - test2:
+          requires:
+            - test1
+      - deploy:
+          requires:
+            - test2
