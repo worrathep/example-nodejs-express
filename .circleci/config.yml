@@ -27,6 +27,11 @@ jobs:
               docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
               docker push worrathep/example-nodejs-express:latest
               docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
+  deploy:
+    docker:
+       - image: circleci/node:8.11.1-stretch
+    steps:
+      - setup_remote_docker
       - run:
           name: Deploy to Rancher
           command: |
