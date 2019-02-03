@@ -27,6 +27,22 @@ jobs:
               docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
               docker push worrathep/example-nodejs-express:latest
               docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
+  test:
+    docker:
+      - image: circleci/node:8.11.1-stretch
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm test
   deploy:
     docker:
        - image: circleci/node:8.11.1-stretch
@@ -49,7 +65,11 @@ workflows:
   test_deplpy_w_workflow:
       jobs:
         - build
-        - deploy:
+        - test:
             # type: approval
             requires:
               - build
+        - deploy:
+            # type: approval
+            requires:
+              - test
