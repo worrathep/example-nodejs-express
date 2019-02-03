@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+  test:
     docker:
       - image: circleci/node:8.11.1-stretch
     working_directory: ~/repo
@@ -17,28 +18,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: npm test
-      - setup_remote_docker
-      - run: docker login -u $docker_username -p $docker_password
-      - run: 
-          name: Build and push docker images
-          command: |
-              cp Dockerfile.production Dockerfile
-              docker build -t worrathep/example-nodejs-express:latest .
-              docker build -t worrathep/example-nodejs-express:${CIRCLE_SHA1} .
-              docker push worrathep/example-nodejs-express:latest
-              docker push worrathep/example-nodejs-express:${CIRCLE_SHA1}
-      - run:
-          name: Deploy to Rancher
-          command: |
-               docker run --rm -it \
-                  -e CATTLE_ACCESS_KEY="$CATTLE_ACCESS_KEY" \
-                  -e CATTLE_SECRET_KEY="$CATTLE_SECRET_KEY" \
-                  -e CATTLE_URL="$rancher_url" \
-                  etlweather/gaucho upgrade $service_id \
-                  --imageUuid 'docker:worrathep/example-nodejs-express:latest' \
-                  --batch_size 3 --start_first \
-                  --auto_complete --timeout 600 
-      - run: echo Done
 workflows:
   version: 2
   build-test-and-deploy:
