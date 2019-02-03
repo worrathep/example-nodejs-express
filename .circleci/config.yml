@@ -44,12 +44,10 @@ workflows:
       - build
       - test1:
           requires:
-            - build
-          context: org-global  
+            - build  
       - test2:
           requires:
-            - test1
-          context: org-global  
+            - test1 
       - deploy:
           requires:
             - test2
